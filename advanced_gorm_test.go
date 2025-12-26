@@ -239,4 +239,5 @@ func TestSubqueries(t *testing.T) {
 	db.Where("category_id IN (?)", db.Model(&Product{}).Select("category_id").Group("category_id").Having("Count(*) > ?", 1)).Find(&product)
 
 	fmt.Printf("\nProduk : %d ", len(product))
+
 }
