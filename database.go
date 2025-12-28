@@ -12,7 +12,9 @@ func SetupDB() *gorm.DB {
 		panic("Failed to connect to database")
 	}
 
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
 	db.Migrator().DropTable(&Product{}, &Category{})
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 	db.AutoMigrate(&Category{}, &Product{})
 
 	return db

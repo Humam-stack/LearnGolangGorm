@@ -11,12 +11,17 @@ func seedData(db *gorm.DB) error {
 	category := Category{
 		Name:        "Elektronik",
 		Description: "Barang Elektronik",
-		Products: []Product{
-			{Name: "HP", Price: 550000, Stock: 20},
-			{Name: "Laptop", Price: 230000, Stock: 15},
-			{Name: "Smartwatch", Price: 434343, Stock: 30},
-		},
 	}
 
-	return db.Create(&category).Error
+	if err := db.Create(&category).Error; err != nil {
+		return err
+	}
+
+	products := []Product{
+		{Name: "Android", Price: 550000, Stock: 20, CategoryID: category.ID},
+		{Name: "Laptop", Price: 230000, Stock: 15, CategoryID: category.ID},
+		{Name: "Smartwatch", Price: 434343, Stock: 30, CategoryID: category.ID},
+	}
+
+	return db.Create(&products).Error
 }
