@@ -137,3 +137,81 @@ func (p *Product) AfterFind(tx *gorm.DB) error {
 	fmt.Printf("Produk dengan Nama : %s\n", p.Name)
 	return nil
 }
+
+func AvailableProduct(db *gorm.DB) *gorm.DB {
+	return db.Where("stock > ?", 0)
+}
+
+//scope dengan minimal harga
+
+func minPrice(minPrice float64) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("price >= ?", minPrice)
+	}
+}
+
+// scope dengan maxharga
+func maxPrice(maxPrice float64) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("price <= ?", maxPrice)
+	}
+}
+
+// scope dengan order by price
+func OrderByPrice(ascending bool) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if ascending {
+			return db.Order("price ASC")
+		}
+		return db.Order("price DESC")
+	}
+}
+
+func Paginate(page, pageSize int) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		offset := (page - 1) * pageSize
+		return db.Offset(offset).Limit(pageSize)
+	}
+}
+
+func SearchByName(keyword string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if keyword == "" {
+			return db
+		}
+		return db.Where("name LIKE ?", keyword)
+	}
+}
+
+func SearchByCategory(cid uint) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if cid == 0 {
+			return db
+		}
+		return db.Where("category_id = ?", cid)
+	}
+}
+
+func FilterProducts(filter map[string]interface{}) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		query := db
+
+		if minPrice, ok := filter["min_price"].(float64); ok && minPrice > 0 {
+			query = db.Where("price >= ?", minPrice)
+		}
+
+		if maxPrice, ok := filter["max_price"].(float64); ok && maxPrice > 0 {
+			query = db.Where("price < ?", maxPrice)
+		}
+
+		if keyword, ok := filter["keyword"].(string); ok && keyword != "" {
+			query = db.Where("name LIKE ? ", "%"+keyword+"%")
+		}
+
+		if categoryId, ok := filter["category_id"].(uint); ok && categoryId > 0 {
+			query = db.Where("category_id = ?", categoryId)
+		}
+
+		return query
+	}
+}
