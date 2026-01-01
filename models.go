@@ -30,6 +30,28 @@ type Product struct {
 	Category    Category       `gorm:"foreignKey:CategoryID"`
 }
 
+type User struct {
+	ID        uint   `gorm:"primaryKey"`
+	Name      string `gorm:"type:varchar(100);not null"`
+	Email     string `gorm:"type:varchar(191);uniqueIndex;not null"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+
+	//many2many
+	Roles []*Role `gorm:"many2many:user_roles;"`
+}
+
+type Role struct {
+	ID        uint   `gorm:"primaryKey"`
+	Name      string `gorm:"type:varchar(100);not null"`
+	CreatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+
+	//many2manyy
+	Users []*User `gorm:"many2many:user_roles;"`
+}
+
 func (p *Product) BeforeCreate(tx *gorm.DB) error {
 	fmt.Println("Sebelum hook trigger")
 

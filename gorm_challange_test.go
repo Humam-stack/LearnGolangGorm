@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type User struct {
+type Memeber struct {
 	gorm.Model
 	Name    string
 	Profile Profile
@@ -63,7 +63,7 @@ func TestGormChallange(t *testing.T) {
 	// }
 	// db.Create(&user)
 
-	var Users User
+	var Users Memeber
 	db.Preload("Profile").Preload("Post.Tag").First(&Users, "name = ?", "Humam")
 	fmt.Println(" User : ", Users.Name)
 	fmt.Println(" Address : ", Users.Profile.Address)
